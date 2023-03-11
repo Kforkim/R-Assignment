@@ -1,0 +1,99 @@
+---
+title: "R Assignment"
+author: "Kimia Noroozi"
+date: "2023-03-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+#Data Inspection
+```{r}
+# Load files
+# Read fang_et_al_genotypes.txt 
+genotypes <- read.delim(file="fang_et_al_genotypes.txt", sep="\t", header=TRUE)
+
+# Read snp_position.txt
+snp <- read.delim(file="snp_position.txt", sep="\t",header= TRUE)
+
+## Data inspection for fang_et_al_genotypes.txt
+
+
+typetypeof(genotypes)
+# genotypes is a "list"
+
+length(genotypes)
+# length of this list is 986
+
+dim(genotypes)
+# dimensions of this file includes: 2782 rows and 986 columns
+
+str(genotypes)
+# this file is a 'data.frame' that includes 2782 observations of 986 variables, including Sample_ID, JG_OTU,Group, and genotypes.
+
+sapply(genotypes,class)
+# all columns are "characters"
+
+table(genotypes$Group)
+# number of inputs for our desired groups in the file are: ZMMIL:290, ZMMLR:1256, ZMMMR:27, ZMPBA: 900, ZMPIL:40, ZMPJA:34 
+
+## Data inspection for snp_position.txt
+type_of_file <- typeof(snp)
+# snp is a "list"
+
+length_of_file <- length(snp)
+# length of this list is 15
+
+number_of_rows <- dim(snp)[1]
+number_of_columns <- dim(snp)[2]
+# dimensions of this file includes: 983 rows and 15 columns
+
+info <- str(snp)
+# this file is a 'data.frame' that includes 983 observations of 15 variables, including SNP_ID, chromosome, position, etc.
+
+class <- sapply(snp,class)
+# 9 columns are "characters" and 6 are "integers"
+```
+
+
+
+#Data Procesing
+```{r}
+library(tidyverse)
+library(dplyr)
+
+
+# Subset Maize information (ZMMIL,ZMMLR,ZMMMR)
+maize <- filter(genotypes, Group %in% c("ZMMIL","ZMMLR","ZMMMR"))
+
+# Subset Teosinte information (ZMPBA,ZMPIL,ZMPJA)
+teosinte <- filter(genotypes, Group %in% c("ZMPBA","ZMPIL","ZMPJA"))
+
+# Remove unnecessary columns (columns 1-3 for genotypes, columns 2 and 5:15 for snp)
+maize <- maize[-c(1:3)]
+teosinte <- teosinte[-c(1:3)]
+snp <- snp[c(1,3,4)]
+
+
+# Transpose genotype files to
+maize_t <- t(maize)
+teosinte_t <- t(teosinte)
+
+# Merge genotype files with snp position file
+maize_snp <-  merge(snp,maize_t,by.x="SNP_ID", by.y="row.names")
+teosinte_snp <-  merge(snp,teosinte_t,by.x = "SNP_ID",by.y = "row.names")
+
+
+# Sorting
+for (i in 1:10){
+  maize.c <- filter(maize_snp,Chromosome %in% c(i))
+  maize.cs <- maize.c[order(maize.c$Position),]
+  m1 <- paste("maize_inc",i,".txt", sep="")
+  write.table(maize.cs,file= m1, row.names = FALSE, sep = "\t")
+}
+```
+  
