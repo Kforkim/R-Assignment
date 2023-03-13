@@ -1,0 +1,76 @@
+---
+title: "Pereira_Review"
+output: html_document
+date: "2023-03-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Inspection
+```{r}
+# For loading files, I believe that we were advised to pull straight from github, and not from the computer itself. Not sure if he will dock points or not, but this is the code that I used: 
+
+genotypes <- read_tsv("https://github.com/EEOB-BioData/BCB546_Spring2023/raw/main/assignments/UNIX_Assignment/fang_et_al_genotypes.txt")
+
+snp <- read_tsv("https://github.com/EEOB-BioData/BCB546_Spring2023/raw/main/assignments/UNIX_Assignment/snp_position.txt")
+
+# In terms of the inspection itself, we practically have the same code! 
+```
+
+# Data Processing
+```{r}
+# Way to check that you have the right data after subsetting (other than view):
+unique(maize$Group)
+unique(teosinte$Group)
+
+# You might be missing where you switched Sample_ID to SNP_ID in genotype data in order to merge by SNP_ID: 
+colnames(maize_cut) [1] <- "SNP_ID"
+colnames(teosinte_cut) [1] <- "SNP_ID"
+
+# The rest of the code looks great! Way to use the loop. Note: uploaded *decreasing* maize and teosinte files look odd (on github). Might be worth re-uploading. It looks fine in R itself. 
+```
+
+# Visualization 
+```{r}
+# Again, Sample_ID needs to be changed to SNP_D in genotypes in order to join with snp by the common SNP_ID column.
+
+# For graphs, if you were trying to remove "multiple" and "unknown": 
+ggplot (data = mt_snp) + geom_bar(mapping = aes(x = Chromosome, fill = Chromosome)) +xlab(label = "Chromosome") + ylab(label = "SNPs") + ggtitle("SNPs per Chromosome") + scale_x_discrete(limit=c(1:10)) 
+
+# All graphs for chromosome distribution (all, teosinte, and maize) look the same. I think there should be differences between each one - Teosinte has a significantly smaller number of SNPs. I'm not entirely sure why this happened, considering that you used your original merged files! The files themselves look correct. Probably a Dr. Lavrov question. I've included my graph for reference. 
+
+# If you wanted to plot both samples, Teosinte and Maize, together, you can do this:
+genotypes_new <- genotypes %>% pivot_longer(!c(Sample_ID, Group), names_to="SNP_ID", values_to= "allele")
+genotype_subsetted <- filter(genotypes_new, Group %in% c("ZMMIL","ZMMLR","ZMMMR","ZMPBA","ZMPIL","ZMPJA"))
+snp_geno <- merge(genotype_subsetted, snp, by="SNP_ID") #don't know why but transposing before merging here doesn't help/work.  
+snp_geno <- tibble::as_tibble(snp_geno)
+Subsetted_SNPs <- snp_geno %>% 
+  mutate(
+    type = if_else(
+      condition = Group %in% c("ZMMIL","ZMMLR","ZMMMR"), 
+      true      = "Maize", 
+      false     = "Teosinte"
+    ), 
+  )
+# then plot by chromosome and type. 
+
+# For the assignment, we need to plot homozygosity and heterozygosity for both samples (teosinte and maize), and each group (6 total). I'm not entirely sure what count is representing in this graph. 
+## one way to do this is follow the example of the above code, except also for heterozygosity in addition to type, after removing NA values: 
+Subsetted_SNPs_2 <- snp_geno %>% 
+  mutate(
+    homogenety = if_else(
+      condition = allele %in% c("A/A","T/T","G/G","C/C"), 
+      true      = "homozygous", 
+      false     = "heterozygous"
+    ), 
+  )
+## then you can use ggplot to look at heterozygous vs. type (sample) and/or group. 
+
+# It doesn't look like you included any plot showing missing data in terms of sample or groups. This can also be done by using the above code and adjusting it to missing/NA values. 
+
+# Overall, the assignment looks good. The main part that may need altering is the visualization portion. Also, the addition of a read.me file to github with a description of your repository. 
+```
+
+
