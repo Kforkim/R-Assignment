@@ -1,0 +1,15 @@
+# R assignment Review from Urval Patel
+
+## Data Inspection
+
+-   data inspection code was flawless, did not encounter any issue with it
+
+## Data Processing
+
+-   It just an suggestion that when write a new file such as "maize_dec4.txt", you can get rid of the commas by adding quote= FALSE
+  * Such as : write.table(<Arguments>, <desire file name/format>, sep = "\t", quote = FALSE, row.names = FALSE)
+  * This should remove qoutes from the final files.
+  * Also good job with using loop : I might try for my self(instead of writing long repeating code)
+
+## Data visualization
+* Has no issue at all. Other than that I think you are pretty much done
