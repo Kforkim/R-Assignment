@@ -235,6 +235,8 @@ names(teosinte_final)[2] <- "homogenety"
 names(teosinte_final)[3] <- "missing_data"
 
 ggplot(data = teosinte_final) + geom_bar(mapping = aes(x=homogenety))
+teosinte_final <- as.numeric((as.character(homogenety)))
+hist.default(teosinte_final, breaks=20, main="Distribution of Homozygosity", xlab="homogenety", ylab="count")
 
 
 #Your own visualization
